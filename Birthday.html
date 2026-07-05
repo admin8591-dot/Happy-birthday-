@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Unlock My Heart 💖</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Parisienne&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+        /* ── Reset & Base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            height: 100%;
+            background: #0a0e2a;
+            font-family: 'Cormorant Garamond', serif;
+            color: #fff7f0;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        #app {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* ── Starfield ── */
+        #stars {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 20%, #2b1750 0%, #0a0e2a 65%);
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff7f0;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+        }
+
+        /* ── Fireworks Canvas ── */
+        #fireworksCanvas {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── Scenes ── */
+        .scene {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5vh 5vw;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.9s ease, transform 0.9s ease;
+            z-index: 1;
+            transform: scale(0.96);
+        }
+        .scene.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+        .scene-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: clamp(1rem, 3.2vw, 1.8rem);
+            color: #fff7f0;
+            max-width: 640px;
+            text-shadow: 0 0 20px rgba(234, 184, 176, 0.35);
+            letter-spacing: 0.3px;
+            margin-top: 0.6rem;
+            line-height: 1.4;
+        }
+        .eyebrow {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            font-size: 0.6rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: #eab8b0;
+            opacity: 0.8;
+            margin-bottom: 0.6rem;
+        }
+        .instruction {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            color: #eab8b0;
+            opacity: 0.8;
+            margin-top: 1rem;
+            padding: 0.3rem 1.2rem;
+            border: 1px solid rgba(234, 184, 176, 0.2);
+            border-radius: 30px;
+            background: rgba(234, 184, 176, 0.06);
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+            min-height: 2.4rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .instruction .icon {
+            font-size: 1rem;
+        }
+
+        /* ── Progress Dots ── */
+        #progress {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: background 0.5s ease, transform 0.5s ease;
+        }
+        .dot.active {
+            background: #e8c874;
+            transform: scale(1.4);
+            box-shadow: 0 0 14px rgba(232, 200, 116, 0.6);
+        }
+        .dot.done {
+            background: rgba(232, 200, 116, 0.35);
+        }
+
+        /* ── Controls ── */
+        #controls {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        #controls.show {
+            opacity: 1;
+        }
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
+            color: #fff7f0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .ctrl-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* ── Next Button ── */
+        .next-btn {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ff5f7e, #ff8fab);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.8rem;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(255, 95, 126, 0.35);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 0.8rem;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .next-btn:active {
+            transform: scale(0.94);
+        }
+        .next-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+        }
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ── Scene 1: Calendar ── */
+        .calendar {
+            width: min(70vw, 220px);
+            aspect-ratio: 1/1.1;
+            background: linear-gradient(160deg, #fdf6ee, #f2e3d3);
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(234, 184, 176, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-bottom: 0.8rem;
+            transition: transform 0.6s ease, box-shadow 0.6s ease;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            perspective: 800px;
+            touch-action: manipulation;
+        }
+        .calendar.flipped {
+            transform: rotateY(12deg) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(234, 184, 176, 0.4);
+        }
+        .cal-top {
+            background: #ff5f7e;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 0.5rem;
+        }
+        .cal-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-direction: column;
+        }
+        .cal-day {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 3rem;
+            color: #2b1750;
+        }
+        .cal-heart {
+            font-size: 1.4rem;
+            animation: pulse 1.6s ease-in-out infinite;
+            margin-top: 2px;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.25);
+            }
+        }
+        .cal-message {
+            font-family: 'Parisienne', cursive;
+            font-size: 0.9rem;
+            color: #2b1750;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            margin-top: 2px;
+        }
+        .cal-message.show {
+            opacity: 1;
+        }
+        .calendar .tap-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 0.5rem;
+            font-family: 'Poppins', sans-serif;
+            color: rgba(43, 23, 80, 0.25);
+            letter-spacing: 0.1em;
+        }
+
+        /* ── Scene 2: Polaroid with photo URLs ── */
+        .memory-field {
+            position: relative;
+            width: 100%;
+            height: 50vh;
+            max-width: 560px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 4px;
+        }
+        .polaroid {
+            width: 120px;
+            background: #fdfaf5;
+            padding: 8px 8px 28px;
+            border-radius: 4px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+            cursor: pointer;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+        .polaroid:active {
+            transform: scale(1.04) !important;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+        }
+        .polaroid .pic {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 2px;
+            background: linear-gradient(135deg, #eab8b0, #2b1750);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .polaroid .pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+            display: block;
+        }
+        .polaroid .pic .emoji-placeholder {
+            font-size: 2rem;
+            opacity: 0.6;
+        }
+        .polaroid span {
+            display: block;
+            text-align: center;
+            font-family: 'Parisienne', cursive;
+            color: #333;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .polaroid .edit-hint {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.4rem;
+            font-family: 'Poppins', sans-serif;
+            color: rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ── Photo URL inputs ── */
+        .photo-settings {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            background: rgba(10, 14, 42, 0.92);
+            backdrop-filter: blur(14px);
+            padding: 1rem 1.4rem;
+            border-radius: 16px;
+            border: 1px solid rgba(234, 184, 176, 0.2);
+            width: 90%;
+            max-width: 400px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+        }
+        .photo-settings.open {
+            display: flex;
+        }
+        .photo-settings label {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.1em;
+            color: #eab8b0;
+            text-transform: uppercase;
+        }
+        .photo-settings input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            color: #fff7f0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
+            width: 100%;
+            outline: none;
+        }
+        .photo-settings input:focus {
+            border-color: #e8c874;
+        }
+        .photo-settings .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 2px;
+        }
+        .photo-settings .btn-row button {
+            flex: 1;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.4rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            touch-action: manipulation;
+        }
+        .photo-settings .btn-row .apply-btn {
+            background: linear-gradient(135deg, #e8c874, #d4a84a);
+            color: #0a0e2a;
+        }
+        .photo-settings .btn-row .close-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff7f0;
+        }
+        .photo-settings .btn-row button:active {
+            transform: scale(0.96);
+        }
+
+        /* ── Scene 3: Scratch ── */
+        .gift {
+            font-size: 4rem;
+            margin-bottom: 0.4rem;
+            animation: sway 2.4s ease-in-out infinite;
+        }
+        @keyframes sway {
+            0%,
+            100% {
+                transform: rotate(-4deg);
+            }
+            50% {
+                transform: rotate(4deg);
+            }
+        }
+        .scratch-wrap {
+            position: relative;
+            width: min(80vw, 300px);
+            height: 140px;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            margin-top: 0.4rem;
+        }
+        .scratch-reveal {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #3a1f5d, #1a0f33);
+            font-family: 'Parisienne', cursive;
+            font-size: 1.4rem;
+            color: #e8c874;
+            text-align: center;
+            padding: 0.8rem;
+        }
+        .scratch-reveal .sub {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.55rem;
+            color: #eab8b0;
+            display: block;
+            margin-top: 4px;
+            opacity: 0.7;
+            letter-spacing: 0.1em;
+        }
+        .scratch-canvas {
+            position: absolute;
+            inset: 0;
+            cursor: pointer;
+            touch-action: none;
+        }
+        .scratch-hint {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #eab8b0;
+            margin-top: 0.6rem;
+            opacity: 0.7;
+        }
+
+        /* ── Scene 4: Floaters ── */
+        .floater-field {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .floater {
+            position: absolute;
+            font-size: 1.6rem;
+            opacity: 0;
+            animation: drift linear infinite;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+        .floater.pop {
+            transform: scale(1.6);
+            opacity: 1 !important;
+        }
+        @keyframes drift {
+            0% {
+                opacity: 0;
+                transform: translateY(10vh) translateX(0) rotate(0deg);
+            }
+            10% {
+                opacity: 0.9;
+            }
+            90% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-70vh) translateX(var(--dx, 20px)) rotate(360deg);
+            }
+        }
+
+        /* ── Scene 5: Cake ── */
+        .cake-wrap {
+            position: relative;
+            width: 220px;
+            height: 190px;
+            margin-bottom: 0.6rem;
+            touch-action: manipulation;
+        }
+        .cake {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .tier {
+            width: 100%;
+            background: linear-gradient(160deg, #ffe3ea, #ffc2d1);
+            border-radius: 8px;
+            box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.08);
+            position: relative;
+            transition: background 0.4s ease;
+        }
+        .tier.bottom {
+            height: 70px;
+        }
+        .tier.top {
+            width: 70%;
+            height: 55px;
+            margin: 0 auto;
+            background: linear-gradient(160deg, #fff0f4, #ffd6e2);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 8px;
+        }
+        .candle-hitbox {
+            position: relative;
+            width: 40px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            cursor: pointer;
+            touch-action: manipulation;
+            margin-top: -12px;
+        }
+        .candle {
+            width: 6px;
+            height: 30px;
+            background: #e8c874;
+            border-radius: 2px;
+            transition: height 0.4s ease, opacity 0.4s ease;
+            position: relative;
+            margin-top: 4px;
+        }
+        .candle.blown {
+            height: 14px;
+            margin-top: 20px;
+            opacity: 0.5;
+        }
+        .flame {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 10px;
+            height: 14px;
+            background: radial-gradient(circle, #fff3b0, #ff5f7e);
+            border-radius: 50% 50% 50% 50%/60% 60% 40% 40%;
+            filter: blur(0.3px);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+        .flame.lit {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            animation: flicker 0.8s ease-in-out infinite;
+        }
+        .flame.out {
+            transform: translateX(-50%) scale(0.2);
+            opacity: 0;
+            animation: none;
+        }
+        @keyframes flicker {
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+            50% {
+                transform: translateX(-50%) scale(1.15) rotate(3deg);
+            }
+        }
+        .cake-crack {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 0;
+            background: #0a0e2a;
+            transform: translateX(-50%);
+            transition: height 0.7s ease;
+        }
+        .cake-crack.cut {
+            height: 100%;
+        }
+        .cake-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 2.4rem;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease;
+            opacity: 0;
+            cursor: pointer;
+            touch-action: manipulation;
+            z-index: 5;
+            filter: drop-shadow(0 0 20px rgba(255, 143, 171, 0.8));
+        }
+        .cake-heart.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        .cake-heart:active {
+            transform: translate(-50%, -50%) scale(1.3);
+        }
+        .sparkle-heart {
+            position: absolute;
+            font-size: 1rem;
+            opacity: 0;
+            transition: opacity 0.8s ease 0.6s, transform 1s ease 0.6s;
+            transform: translateY(10px) scale(0.5);
+            pointer-events: none;
+        }
+        .sparkle-heart.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .cake-status {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.6rem;
+            color: #eab8b0;
+            opacity: 0.9;
+            margin-top: 0.4rem;
+            min-height: 1.4rem;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(2px);
+        }
+        .cake-secret {
+            font-family: 'Parisienne', cursive;
+            color: #e8c874;
+            font-size: 1.2rem;
+            margin-top: 0.4rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            text-shadow: 0 0 30px rgba(232, 200, 116, 0.3);
+        }
+        .cake-secret.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Scene 6: Balloons + Fireworks ── */
+        .name-gold {
+            font-family: 'Parisienne', cursive;
+            font-size: clamp(2rem, 7vw, 4rem);
+            color: #e8c874;
+            text-shadow: 0 0 24px rgba(232, 200, 116, 0.7), 0 0 60px rgba(232, 200, 116, 0.4);
+            margin: 0.2rem 0 0.2rem;
+        }
+        .balloon {
+            position: absolute;
+            bottom: -20vh;
+            font-size: 2.2rem;
+            animation: rise 8s ease-in infinite;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+        .balloon:active {
+            transform: scale(1.3);
+        }
+        .balloon.pop {
+            animation: none !important;
+            transform: scale(2);
+            opacity: 0 !important;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+        @keyframes rise {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            100% {
+                transform: translateY(-130vh) translateX(var(--bx, 0px));
+            }
+        }
+
+        /* ── Scene 7: Locket ── */
+        .locket {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 0.6rem;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .locket .heart-shell {
+            position: absolute;
+            inset: 0;
+            font-size: 6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 0 25px rgba(255, 143, 171, 0.6));
+            transition: transform 1.2s ease, opacity 1.2s ease;
+        }
+        .locket.open .heart-shell.left {
+            transform: translateX(-40px) rotate(-15deg);
+            opacity: 0.15;
+        }
+        .locket.open .heart-shell.right {
+            transform: translateX(40px) rotate(15deg);
+            opacity: 0.15;
+        }
+        .locket-glow {
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 150, 0.6), transparent 70%);
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            pointer-events: none;
+        }
+        .locket.open .locket-glow {
+            opacity: 1;
+        }
+        .final-msg {
+            max-width: 560px;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 1.4s ease 0.5s, transform 1.4s ease 0.5s;
+        }
+        .final-msg.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .princess-name {
+            font-family: 'Parisienne', cursive;
+            color: #e8c874;
+            font-size: 1.3em;
+        }
+
+        /* ── Start Overlay ── */
+        #startOverlay {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            background: radial-gradient(ellipse at 50% 30%, #2b1750, #0a0e2a);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            text-align: center;
+            padding: 0 8vw;
+            transition: opacity 0.8s ease;
+        }
+        #startOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #startOverlay h1 {
+            font-family: 'Parisienne', cursive;
+            font-size: clamp(2rem, 7vw, 3rem);
+            color: #e8c874;
+            text-shadow: 0 0 30px rgba(232, 200, 116, 0.5);
+        }
+        #startOverlay p {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            font-size: 0.75rem;
+            color: #eab8b0;
+            letter-spacing: 0.05em;
+        }
+        #startBtn {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ff5f7e, #ff8fab);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 95, 126, 0.4);
+            transition: transform 0.3s ease;
+            touch-action: manipulation;
+        }
+        #startBtn:active {
+            transform: scale(0.94);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            .polaroid {
+                width: 100px;
+                padding: 6px 6px 22px;
+            }
+            .polaroid .pic {
+                font-size: 1.2rem;
+            }
+            .polaroid span {
+                font-size: 0.65rem;
+            }
+            .cake-wrap {
+                width: 170px;
+                height: 150px;
+            }
+            .cake {
+                width: 160px;
+            }
+            .tier.bottom {
+                height: 56px;
+            }
+            .tier.top {
+                height: 44px;
+            }
+            .cake-heart {
+                font-size: 2rem;
+            }
+            .locket {
+                width: 100px;
+                height: 100px;
+            }
+            .locket .heart-shell {
+                font-size: 5rem;
+            }
+            .scratch-wrap {
+                height: 110px;
+            }
+            .gift {
+                font-size: 3rem;
+            }
+            .calendar {
+                width: min(60vw, 160px);
+            }
+            .cal-day {
+                font-size: 2.4rem;
+            }
+            .next-btn {
+                padding: 0.4rem 1.2rem;
+                font-size: 0.6rem;
+            }
+            .photo-settings {
+                bottom: 70px;
+                padding: 0.8rem 1rem;
+            }
+            #progress {
+                bottom: 48px;
+            }
+            .memory-field {
+                gap: 8px;
+                height: 44vh;
+            }
+            .instruction {
+                font-size: 0.55rem;
+                padding: 0.2rem 0.8rem;
+                min-height: 2rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div id="stars"></div>
+        <canvas id="fireworksCanvas"></canvas>
+
+        <!-- ─── START OVERLAY ─── -->
+        <div id="startOverlay">
+            <h1>Unlock My Heart</h1>
+            <p>A little journey made just for you.<br />Tap, touch, and explore each moment. 🎧</p>
+            <button id="startBtn">Begin ❤️</button>
+        </div>
+
+        <!-- ─── SCENE 1: Calendar ─── -->
+        <section class="scene" id="scene1">
+            <div class="calendar" id="calendar">
+                <div class="cal-top">February</div>
+                <div class="cal-body">
+                    <span class="cal-day">14</span>
+                    <span class="cal-heart">❤️</span>
+                    <span class="cal-message" id="calMsg">— Our day —</span>
+                    <span class="tap-hint">✧ tap ✧</span>
+                </div>
+            </div>
+            <p class="scene-text">The most beautiful day of my year has arrived...</p>
+            <div class="instruction"><span class="icon">👆</span> Tap the calendar to open it</div>
+            <button class="next-btn" data-next="1">Continue →</button>
+        </section>
+
+        <!-- ─── SCENE 2: Polaroids ─── -->
+        <section class="scene" id="scene2">
+            <div class="eyebrow">♡ memories ♡</div>
+            <div class="memory-field" id="memoryField"></div>
+            <p class="scene-text">Every moment with you became a treasure.</p>
+            <div class="instruction"><span class="icon">👆</span> Tap a photo to enlarge • double‑tap to edit URL</div>
+            <button class="next-btn" data-next="2">Continue →</button>
+        </section>
+
+        <!-- ─── SCENE 3: Scratch ─── -->
+        <section class="scene" id="scene3">
+            <div class="gift">🎁</div>
+            <div class="scratch-wrap">
+                <div class="scratch-reveal">
+                    You are my happiest place. ❤️
+                    <span class="sub">— forever & always —</span>
+                </div>
+                <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
+            </div>
+            <div class="scratch-hint">✧ scratch to reveal ✧</div>
+            <p class="scene-text">A little secret, just for you.</p>
+            <button class="next-btn" data-next="3">Continue →</button>
+        </section>
+
+        <!-- ─── SCENE 4: Floaters ─── -->
+        <section class="scene" id="scene4">
+            <div class="floater-field" id="floaterField"></div>
+            <p class="scene-text">Thank you for every smile, every laugh,<br />and every moment we've shared.</p>
+            <div class="instruction"><span class="icon">👆</span> Tap anywhere to shower more love</div>
+            <button class="next-btn" data-next="4">Continue →</button>
+        </section>
+
+        <!-- ─── SCENE 5: Cake ─── -->
+        <section class="scene" id="scene5">
+            <div class="cake-wrap">
+                <div class="cake" id="cakeBody">
+                    <div class="tier top" id="cakeTop">
+                        <div class="candle-hitbox" id="candleHitbox">
+                            <div class="candle" id="candle">
+                                <div class="flame lit" id="flame"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tier bottom" id="cakeBottom"></div>
+                    <div class="cake-crack" id="cakeCrack"></div>
+                    <div class="cake-heart" id="cakeHeart">💖</div>
+                    <div class="sparkle-heart" id="spark1" style="top:10px;left:20%;">💗</div>
+                    <div class="sparkle-heart" id="spark2" style="top:24px;left:60%;">✨</div>
+                    <div class="sparkle-heart" id="spark3" style="top:44px;left:38%;">💖</div>
+                </div>
+            </div>
+            <p class="scene-text">Make a wish, my love. ✨</p>
+            <div class="cake-status" id="cakeStatus">🕯️ Tap the candle to blow it out</div>
+            <div class="cake-secret" id="cakeSecret">You have the sweetest heart, my love. 💖</div>
+            <button class="next-btn" data-next="5" id="cakeNext" style="display:none;">Continue →</button>
+        </section>
+
+        <!-- ─── SCENE 6: Balloons + Fireworks ─── -->
+        <section class="scene" id="scene6">
+            <div class="eyebrow">happy birthday</div>
+            <div class="name-gold">My Love ❤️</div>
+            <p class="scene-text">Happy Birthday, my beautiful princess.</p>
+            <div id="balloonField"></div>
+            <div class="instruction"><span class="icon">🎈</span> Pop the balloons!</div>
+            <button class="next-btn" data-next="6">Continue →</button>
+        </section>
+
+        <!-- ─── SCENE 7: Locket ─── -->
+        <section class="scene" id="scene7">
+            <div class="locket" id="locket">
+                <div class="locket-glow"></div>
+                <div class="heart-shell left">❤️</div>
+                <div class="heart-shell right">❤️</div>
+            </div>
+            <p class="final-msg" id="finalMsg">
+                No matter where life takes us, you'll always have the biggest piece of my heart.<br />
+                I love you today, tomorrow, and always.<br />
+                Happy Birthday, <span class="princess-name">Princess</span>. ❤️✨
+            </p>
+            <div class="instruction"><span class="icon">👆</span> Tap the locket to open it</div>
+            <button class="next-btn" data-next="7" id="finalNext" style="display:none;">💖 Forever</button>
+        </section>
+
+        <!-- ─── PROGRESS DOTS ─── -->
+        <div id="progress"></div>
+
+        <!-- ─── CONTROLS ─── -->
+        <div id="controls">
+            <button class="ctrl-btn" id="muteBtn">🔊 Sound</button>
+            <button class="ctrl-btn" id="replayBtn">↺ Replay</button>
+        </div>
+
+        <!-- ─── PHOTO SETTINGS (hidden overlay) ─── -->
+        <div class="photo-settings" id="photoSettings">
+            <label>📷 Image URL (direct link, e.g. from ibb.co)</label>
+            <input type="text" id="photoUrlInput" placeholder="https://i.ibb.co/xxx/image.jpg" />
+            <div class="btn-row">
+                <button class="apply-btn" id="applyPhotoBtn">Apply</button>
+                <button class="close-btn" id="closePhotoBtn">✕ Close</button>
+            </div>
+        </div>
+
+        <!-- ─── AUDIO (using the provided URL) ─── -->
+        <audio id="bgMusic" loop preload="auto">
+            <source src="https://www.image2url.com/r2/default/audio/1783186758574-aceb56d6-b6fd-4fb1-b6d5-14681e317948.mp3" type="audio/mpeg" />
+        </audio>
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  STARFIELD
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        (function initStars() {
+            const c = document.getElementById('stars');
+            for (let i = 0; i < 110; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.animationDelay = (Math.random() * 3) + 's';
+                const size = 1 + Math.random() * 2;
+                s.style.width = s.style.height = size + 'px';
+                c.appendChild(s);
+            }
+        })();
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  FIREWORKS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const fwCanvas = document.getElementById('fireworksCanvas');
+        const fwCtx = fwCanvas.getContext('2d');
+        let fwParticles = [];
+        let fwRunning = false;
+        let fwInterval = null;
+
+        function resizeFw() {
+            fwCanvas.width = window.innerWidth;
+            fwCanvas.height = window.innerHeight;
+        }
+        resizeFw();
+        window.addEventListener('resize', resizeFw);
+
+        function burstFw(x, y, color) {
+            for (let i = 0; i < 45; i++) {
+                const angle = (Math.PI * 2 * i) / 45 + Math.random() * 0.3;
+                const speed = 2 + Math.random() * 3.5;
+                fwParticles.push({
+                    x,
+                    y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    color,
+                    size: 2 + Math.random() * 2.5
+                });
+            }
+        }
+
+        function animateFw() {
+            if (!fwRunning) return;
+            fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+            fwParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.03;
+                p.life -= 0.01;
+                fwCtx.globalAlpha = Math.max(p.life, 0);
+                fwCtx.fillStyle = p.color;
+                fwCtx.beginPath();
+                fwCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                fwCtx.fill();
+            });
+            fwParticles = fwParticles.filter(p => p.life > 0);
+            fwCtx.globalAlpha = 1;
+            requestAnimationFrame(animateFw);
+        }
+
+        const fwColors = ['#ff8fab', '#e8c874', '#eab8b0', '#ffffff', '#ff5f7e', '#ffb3c6', '#ffd166'];
+
+        function startFireworks() {
+            if (fwRunning) return;
+            fwRunning = true;
+            animateFw();
+            fwInterval = setInterval(() => {
+                const x = Math.random() * fwCanvas.width;
+                const y = fwCanvas.height * 0.15 + Math.random() * fwCanvas.height * 0.35;
+                burstFw(x, y, fwColors[Math.floor(Math.random() * fwColors.length)]);
+            }, 380);
+            setTimeout(() => {
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        burstFw(
+                            Math.random() * fwCanvas.width,
+                            fwCanvas.height * 0.2 + Math.random() * fwCanvas.height * 0.3,
+                            fwColors[Math.floor(Math.random() * fwColors.length)]
+                        );
+                    }, i * 180);
+                }
+            }, 700);
+        }
+
+        function stopFireworks() {
+            fwRunning = false;
+            if (fwInterval) { clearInterval(fwInterval);
+                fwInterval = null; }
+            fwParticles = [];
+            fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE MANAGEMENT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const sceneIds = ['scene1', 'scene2', 'scene3', 'scene4', 'scene5', 'scene6', 'scene7'];
+        let currentSceneIdx = -1;
+        let timeline = [];
+
+        function goToScene(idx) {
+            sceneIds.forEach(id => document.getElementById(id).classList.remove('active'));
+            if (idx >= sceneIds.length) {
+                document.getElementById('controls').classList.add('show');
+                updateDots(sceneIds.length);
+                return;
+            }
+            currentSceneIdx = idx;
+            const el = document.getElementById(sceneIds[idx]);
+            el.classList.add('active');
+            updateDots(idx);
+
+            // scene‑specific init / cleanup
+            if (sceneIds[idx] === 'scene4') initFloaters();
+            if (sceneIds[idx] === 'scene5') resetCake();
+            if (sceneIds[idx] === 'scene6') { startFireworks();
+                initBalloons(); } else stopFireworks();
+            if (sceneIds[idx] === 'scene7') resetLocket();
+
+            // show next button for scene7 only after locket opens
+            if (sceneIds[idx] === 'scene7') {
+                document.getElementById('finalNext').style.display = 'none';
+            }
+        }
+
+        function updateDots(activeIdx) {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, i) => {
+                d.classList.remove('active', 'done');
+                if (i === activeIdx) d.classList.add('active');
+                else if (i < activeIdx) d.classList.add('done');
+            });
+        }
+
+        function initProgress() {
+            const container = document.getElementById('progress');
+            container.innerHTML = '';
+            for (let i = 0; i < sceneIds.length; i++) {
+                const d = document.createElement('div');
+                d.className = 'dot';
+                container.appendChild(d);
+            }
+        }
+        initProgress();
+
+        // ─── Next buttons ───
+        document.querySelectorAll('.next-btn[data-next]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.next);
+                if (!isNaN(idx) && idx <= sceneIds.length) {
+                    goToScene(idx);
+                }
+                // ripple
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX || e.touches?.[0]?.clientX || rect.left + rect.width / 2) - rect.left -
+                    size / 2 + 'px';
+                ripple.style.top = (e.clientY || e.touches?.[0]?.clientY || rect.top + rect.height / 2) - rect.top -
+                    size / 2 + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 1: CALENDAR
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const calendar = document.getElementById('calendar');
+        const calMsg = document.getElementById('calMsg');
+        let calFlipped = false;
+
+        calendar.addEventListener('click', () => {
+            calFlipped = !calFlipped;
+            calendar.classList.toggle('flipped', calFlipped);
+            calMsg.classList.toggle('show', calFlipped);
+            if (calFlipped) {
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        const spark = document.createElement('span');
+                        spark.textContent = '✨';
+                        spark.style.cssText =
+                            `position:fixed; pointer-events:none; font-size:${1+Math.random()*1.2}rem; left:${calendar.getBoundingClientRect().left+Math.random()*calendar.offsetWidth}px; top:${calendar.getBoundingClientRect().top+Math.random()*calendar.offsetHeight}px; z-index:25; transition:all 0.7s ease; opacity:1;`;
+                        document.body.appendChild(spark);
+                        setTimeout(() => {
+                            spark.style.transform =
+                                `translate(${Math.random()*80-40}px, ${-40-Math.random()*70}px) scale(0)`;
+                            spark.style.opacity = '0';
+                        }, 40);
+                        setTimeout(() => spark.remove(), 800);
+                    }, i * 70);
+                }
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 2: POLAROIDS with photo URLs
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ── Edit these 6 entries to add your own image URLs ──
+        const memoryData = [
+            { emoji: '📷', label: 'that day', img: 'https://i.ibb.co/F46xjyMK/17e236e66ba5c2a7f5b9661711a1e16e.jpg' },
+            { emoji: '🌇', label: 'sunset walk', img: 'https://i.ibb.co/PGnCcVKg/b4112c2492d8e8f7f2dc577bed48b0da.jpg' },
+            { emoji: '☕', label: 'coffee talks', img: 'https://i.ibb.co/4wq6171H/011d8edfbb7d76f12904b8a7db76f330.jpg' },
+            { emoji: '🎶', label: 'our song', img: 'https://i.ibb.co/wrRJQqnW/af35cbd9e136aa68be427cf9b1b35010.jpg' },
+            { emoji: '🌸', label: 'spring days', img: 'https://i.ibb.co/rR5wVbvZ/117aea7fa5cbbd17cb729cf873a182a6.jpg' },
+            { emoji: '🌊', label: 'by the sea', img: 'https://i.ibb.co/Z6pXL46Z/293de4591196cea2b9676300425c667d.jpg' },
+        ];
+        let polaroidElements = [];
+        let selectedPolaroidIdx = -1;
+        const photoSettings = document.getElementById('photoSettings');
+        const photoUrlInput = document.getElementById('photoUrlInput');
+
+        function initPolaroids() {
+            const field = document.getElementById('memoryField');
+            if (polaroidElements.length > 0) return;
+            memoryData.forEach((m, i) => {
+                const p = document.createElement('div');
+                p.className = 'polaroid';
+                p.dataset.idx = i;
+                const hasImg = m.img && m.img.length > 8;
+                p.innerHTML = `
+              <div class="pic">
+                ${hasImg ? `<img src="${m.img}" alt="${m.label}" loading="lazy" />` : `<span class="emoji-placeholder">${m.emoji}</span>`}
+                <span class="edit-hint">✧ edit</span>
+              </div>
+              <span>${m.label}</span>
+            `;
+                field.appendChild(p);
+                polaroidElements.push(p);
+
+                // tap to enlarge
+                p.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    p.style.transform = `scale(1.1)`;
+                    p.style.zIndex = '10';
+                    p.style.boxShadow = '0 20px 60px rgba(0,0,0,0.7)';
+                    setTimeout(() => {
+                        p.style.transform = `scale(1)`;
+                        p.style.zIndex = '1';
+                        p.style.boxShadow = '0 10px 24px rgba(0,0,0,0.4)';
+                    }, 500);
+                });
+
+                // double‑tap to edit URL
+                let lastTap = 0;
+                p.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    openPhotoEditor(i);
+                });
+                p.addEventListener('touchend', (e) => {
+                    const now = Date.now();
+                    if (now - lastTap < 300) {
+                        e.preventDefault();
+                        openPhotoEditor(i);
+                    }
+                    lastTap = now;
+                });
+            });
+        }
+
+        function openPhotoEditor(idx) {
+            selectedPolaroidIdx = idx;
+            const data = memoryData[idx];
+            photoUrlInput.value = data.img || '';
+            photoSettings.classList.add('open');
+            photoUrlInput.focus();
+        }
+
+        document.getElementById('applyPhotoBtn').addEventListener('click', () => {
+            const url = photoUrlInput.value.trim();
+            if (selectedPolaroidIdx >= 0 && selectedPolaroidIdx < memoryData.length) {
+                memoryData[selectedPolaroidIdx].img = url;
+                const el = polaroidElements[selectedPolaroidIdx];
+                const pic = el.querySelector('.pic');
+                if (url && url.length > 5) {
+                    pic.innerHTML =
+                        `<img src="${url}" alt="${memoryData[selectedPolaroidIdx].label}" loading="lazy" /><span class="edit-hint">✧ edit</span>`;
+                } else {
+                    pic.innerHTML =
+                        `<span class="emoji-placeholder">${memoryData[selectedPolaroidIdx].emoji}</span><span class="edit-hint">✧ edit</span>`;
+                }
+                photoSettings.classList.remove('open');
+                selectedPolaroidIdx = -1;
+            }
+        });
+
+        document.getElementById('closePhotoBtn').addEventListener('click', () => {
+            photoSettings.classList.remove('open');
+            selectedPolaroidIdx = -1;
+        });
+
+        document.addEventListener('click', (e) => {
+            if (photoSettings.classList.contains('open') && !photoSettings.contains(e.target)) {
+                photoSettings.classList.remove('open');
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 3: SCRATCH CARD
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const scratchCanvas = document.getElementById('scratchCanvas');
+        const sctx = scratchCanvas.getContext('2d');
+        let scratchReady = false;
+
+        function sizeScratch() {
+            const rect = scratchCanvas.parentElement.getBoundingClientRect();
+            scratchCanvas.width = rect.width;
+            scratchCanvas.height = rect.height;
+            sctx.globalCompositeOperation = 'source-over';
+            const grad = sctx.createLinearGradient(0, 0, rect.width, rect.height);
+            grad.addColorStop(0, '#c9a37a');
+            grad.addColorStop(1, '#8a6b47');
+            sctx.fillStyle = grad;
+            sctx.fillRect(0, 0, rect.width, rect.height);
+            sctx.fillStyle = 'rgba(255,255,255,0.75)';
+            sctx.font = '600 14px Poppins, sans-serif';
+            sctx.textAlign = 'center';
+            sctx.textBaseline = 'middle';
+            sctx.fillText('✦ SCRATCH ✦', rect.width / 2, rect.height / 2 - 4);
+            sctx.globalCompositeOperation = 'destination-out';
+            scratchReady = true;
+        }
+        sizeScratch();
+        window.addEventListener('resize', sizeScratch);
+
+        let scratchActive = false;
+
+        function scratchAt(x, y) {
+            if (!scratchReady) return;
+            sctx.beginPath();
+            sctx.arc(x, y, 26, 0, Math.PI * 2);
+            sctx.fill();
+        }
+
+        function getScratchPos(e) {
+            const rect = scratchCanvas.getBoundingClientRect();
+            const t = e.touches ? e.touches[0] : e;
+            return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+        }
+
+        scratchCanvas.addEventListener('pointerdown', (e) => {
+            scratchActive = true;
+            const p = getScratchPos(e);
+            scratchAt(p.x, p.y);
+        });
+        scratchCanvas.addEventListener('pointermove', (e) => {
+            if (scratchActive) {
+                const p = getScratchPos(e);
+                scratchAt(p.x, p.y);
+            }
+        });
+        window.addEventListener('pointerup', () => { scratchActive = false; });
+        scratchCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            scratchActive = true;
+            const p = getScratchPos(e);
+            scratchAt(p.x, p.y);
+        }, { passive: false });
+        scratchCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (scratchActive) {
+                const p = getScratchPos(e);
+                scratchAt(p.x, p.y);
+            }
+        }, { passive: false });
+        scratchCanvas.addEventListener('touchend', () => { scratchActive = false; });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 4: FLOATERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const floaterEmojis = ['🌹', '🦋', '💖', '🌹', '✨', '🦋', '💗', '🌸', '🌺', '💕'];
+        let floaters = [];
+
+        function initFloaters() {
+            const field = document.getElementById('floaterField');
+            if (floaters.length > 0) return;
+            for (let i = 0; i < 22; i++) {
+                const f = document.createElement('div');
+                f.className = 'floater';
+                f.textContent = floaterEmojis[i % floaterEmojis.length];
+                f.style.left = Math.random() * 100 + '%';
+                f.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+                f.style.animationDuration = (6 + Math.random() * 5) + 's';
+                f.style.animationDelay = (Math.random() * 5) + 's';
+                field.appendChild(f);
+                floaters.push(f);
+            }
+            // tap to spawn more
+            const scene4 = document.getElementById('scene4');
+            scene4.addEventListener('click', (e) => {
+                if (e.target.closest('.next-btn')) return;
+                for (let i = 0; i < 5; i++) {
+                    const f = document.createElement('div');
+                    f.className = 'floater';
+                    f.textContent = ['💖', '✨', '🌹', '🦋', '💗', '🌸'][Math.floor(Math.random() * 6)];
+                    f.style.left = (e.clientX || window.innerWidth / 2) + (Math.random() * 100 - 50) + 'px';
+                    f.style.top = (e.clientY || window.innerHeight / 2) + (Math.random() * 80 - 40) + 'px';
+                    f.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+                    f.style.animationDuration = (4 + Math.random() * 4) + 's';
+                    f.style.animationDelay = '0.1s';
+                    f.style.fontSize = (1.2 + Math.random() * 1.6) + 'rem';
+                    document.getElementById('floaterField').appendChild(f);
+                    setTimeout(() => f.remove(), 9000);
+                }
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 5: CAKE — Step by step
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let cakeStep = 0; // 0:candle, 1:cake, 2:heart, 3:done
+        const flame = document.getElementById('flame');
+        const candle = document.getElementById('candle');
+        const candleHitbox = document.getElementById('candleHitbox');
+        const cakeBody = document.getElementById('cakeBody');
+        const cakeHeart = document.getElementById('cakeHeart');
+        const cakeCrack = document.getElementById('cakeCrack');
+        const cakeStatus = document.getElementById('cakeStatus');
+        const cakeSecret = document.getElementById('cakeSecret');
+        const cakeNext = document.getElementById('cakeNext');
+
+        function resetCake() {
+            cakeStep = 0;
+            flame.className = 'flame lit';
+            candle.classList.remove('blown');
+            cakeCrack.classList.remove('cut');
+            cakeHeart.classList.remove('show');
+            cakeSecret.classList.remove('show');
+            document.querySelectorAll('.sparkle-heart').forEach(el => el.classList.remove('show'));
+            cakeStatus.textContent = '🕯️ Tap the candle to blow it out';
+            cakeNext.style.display = 'none';
+        }
+
+        // 1. Blow candle
+        candleHitbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (cakeStep !== 0) return;
+            cakeStep = 1;
+            flame.className = 'flame out';
+            candle.classList.add('blown');
+            cakeStatus.textContent = '🔪 Tap the cake to cut it';
+            // sparkles
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const sp = document.createElement('span');
+                    sp.textContent = '✨';
+                    sp.style.cssText =
+                        `position:fixed; pointer-events:none; font-size:${1+Math.random()}rem; left:${candleHitbox.getBoundingClientRect().left+Math.random()*40-20}px; top:${candleHitbox.getBoundingClientRect().top-20+Math.random()*30}px; z-index:25; transition:all 0.7s ease; opacity:1;`;
+                    document.body.appendChild(sp);
+                    setTimeout(() => {
+                        sp.style.transform =
+                            `translate(${Math.random()*120-60}px, ${-90-Math.random()*120}px) scale(0)`;
+                        sp.style.opacity = '0';
+                    }, 40);
+                    setTimeout(() => sp.remove(), 800);
+                }, i * 60);
+            }
+        });
+
+        // 2. Cut cake
+        cakeBody.addEventListener('click', (e) => {
+            if (cakeStep !== 1) return;
+            cakeStep = 2;
+            cakeCrack.classList.add('cut');
+            cakeHeart.classList.add('show');
+            cakeStatus.textContent = '❤️ Tap the heart to reveal the secret';
+            document.querySelectorAll('.sparkle-heart').forEach(el => {
+                setTimeout(() => el.classList.add('show'), 400);
+            });
+            // burst
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const em = ['💗', '💖', '✨', '🎉', '❤️'][Math.floor(Math.random() * 5)];
+                    const sp = document.createElement('span');
+                    sp.textContent = em;
+                    sp.style.cssText =
+                        `position:fixed; pointer-events:none; font-size:${1.2+Math.random()*1.4}rem; left:${cakeBody.getBoundingClientRect().left+Math.random()*100-20}px; top:${cakeBody.getBoundingClientRect().top+Math.random()*80-20}px; z-index:25; transition:all 0.9s ease; opacity:1;`;
+                    document.body.appendChild(sp);
+                    setTimeout(() => {
+                        sp.style.transform =
+                            `translate(${Math.random()*160-80}px, ${-120-Math.random()*180}px) scale(0.2)`;
+                        sp.style.opacity = '0';
+                    }, 40);
+                    setTimeout(() => sp.remove(), 1000);
+                }, i * 80);
+            }
+        });
+
+        // 3. Tap heart
+        cakeHeart.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (cakeStep !== 2) return;
+            cakeStep = 3;
+            cakeSecret.classList.add('show');
+            cakeStatus.textContent = '🎉 Happy Birthday, my love! 🎉';
+            cakeNext.style.display = 'inline-block';
+            // extra celebration
+            for (let i = 0; i < 16; i++) {
+                setTimeout(() => {
+                    const em = ['💖', '✨', '🎉', '❤️', '🌟', '💗'][Math.floor(Math.random() * 6)];
+                    const sp = document.createElement('span');
+                    sp.textContent = em;
+                    sp.style.cssText =
+                        `position:fixed; pointer-events:none; font-size:${1+Math.random()*2}rem; left:${cakeHeart.getBoundingClientRect().left+Math.random()*60-30}px; top:${cakeHeart.getBoundingClientRect().top+Math.random()*60-30}px; z-index:30; transition:all 1s ease; opacity:1;`;
+                    document.body.appendChild(sp);
+                    setTimeout(() => {
+                        sp.style.transform =
+                            `translate(${Math.random()*200-100}px, ${-150-Math.random()*250}px) scale(0)`;
+                        sp.style.opacity = '0';
+                    }, 50);
+                    setTimeout(() => sp.remove(), 1200);
+                }, i * 100);
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 6: BALLOONS + FIREWORKS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const balloonEmojis = ['🎈', '💗', '🎈', '💝', '🎈', '❤️', '🎈', '🌟'];
+        let balloonElements = [];
+
+        function initBalloons() {
+            const field = document.getElementById('balloonField');
+            field.innerHTML = '';
+            balloonElements = [];
+            for (let i = 0; i < 14; i++) {
+                const b = document.createElement('div');
+                b.className = 'balloon';
+                b.textContent = balloonEmojis[i % balloonEmojis.length];
+                b.style.left = (3 + Math.random() * 94) + '%';
+                b.style.setProperty('--bx', (Math.random() * 70 - 35) + 'px');
+                b.style.animationDelay = (Math.random() * 4) + 's';
+                b.style.animationDuration = (7 + Math.random() * 4) + 's';
+                b.dataset.popped = 'false';
+                b.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    popBalloon(b);
+                });
+                b.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    popBalloon(b);
+                }, { passive: false });
+                field.appendChild(b);
+                balloonElements.push(b);
+            }
+        }
+
+        function popBalloon(el) {
+            if (el.dataset.popped === 'true') return;
+            el.dataset.popped = 'true';
+            el.classList.add('pop');
+            const rect = el.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            for (let i = 0; i < 8; i++) {
+                const sp = document.createElement('span');
+                sp.textContent = ['✨', '💖', '🎉', '⭐', '💗'][Math.floor(Math.random() * 5)];
+                sp.style.cssText =
+                    `position:fixed; pointer-events:none; font-size:${0.8+Math.random()}rem; left:${cx+Math.random()*40-20}px; top:${cy+Math.random()*40-20}px; z-index:25; transition:all 0.5s ease; opacity:1;`;
+                document.body.appendChild(sp);
+                setTimeout(() => {
+                    sp.style.transform = `translate(${Math.random()*120-60}px, ${-70-Math.random()*100}px) scale(0)`;
+                    sp.style.opacity = '0';
+                }, 30);
+                setTimeout(() => sp.remove(), 600);
+            }
+            setTimeout(() => {
+                const all = document.querySelectorAll('.balloon');
+                const popped = document.querySelectorAll('.balloon.pop');
+                if (all.length > 0 && all.length === popped.length) {
+                    for (let i = 0; i < 12; i++) {
+                        setTimeout(() => {
+                            burstFw(
+                                Math.random() * fwCanvas.width,
+                                fwCanvas.height * 0.1 + Math.random() * fwCanvas.height * 0.4,
+                                fwColors[Math.floor(Math.random() * fwColors.length)]
+                            );
+                        }, i * 120);
+                    }
+                }
+            }, 500);
+            setTimeout(() => el.remove(), 500);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCENE 7: LOCKET
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let locketOpened = false;
+
+        function resetLocket() {
+            locketOpened = false;
+            document.getElementById('locket').classList.remove('open');
+            document.getElementById('finalMsg').classList.remove('show');
+            document.getElementById('finalNext').style.display = 'none';
+        }
+
+        document.getElementById('locket').addEventListener('click', () => {
+            if (locketOpened) return;
+            locketOpened = true;
+            document.getElementById('locket').classList.add('open');
+            document.getElementById('finalMsg').classList.add('show');
+            for (let i = 0; i < 14; i++) {
+                setTimeout(() => {
+                    burstFw(
+                        Math.random() * fwCanvas.width,
+                        fwCanvas.height * 0.1 + Math.random() * fwCanvas.height * 0.3,
+                        fwColors[Math.floor(Math.random() * fwColors.length)]
+                    );
+                }, i * 180 + 400);
+            }
+            setTimeout(() => {
+                document.getElementById('finalNext').style.display = 'inline-block';
+            }, 1800);
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  START / CONTROLS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const startOverlay = document.getElementById('startOverlay');
+        const startBtn = document.getElementById('startBtn');
+        const bgMusic = document.getElementById('bgMusic');
+        const muteBtn = document.getElementById('muteBtn');
+        const replayBtn = document.getElementById('replayBtn');
+
+        startBtn.addEventListener('click', () => {
+            startOverlay.classList.add('hidden');
+            bgMusic.volume = 0.5;
+            bgMusic.play().catch(() => {});
+            goToScene(0);
+            // init polaroids on first scene load
+            setTimeout(initPolaroids, 300);
+        });
+
+        muteBtn.addEventListener('click', () => {
+            bgMusic.muted = !bgMusic.muted;
+            muteBtn.textContent = bgMusic.muted ? '🔇 Sound' : '🔊 Sound';
+        });
+
+        replayBtn.addEventListener('click', () => {
+            document.getElementById('controls').classList.remove('show');
+            bgMusic.currentTime = 0;
+            bgMusic.play().catch(() => {});
+            sceneIds.forEach(id => document.getElementById(id).classList.remove('active'));
+            polaroidElements = [];
+            document.getElementById('memoryField').innerHTML = '';
+            floaters = [];
+            document.getElementById('floaterField').innerHTML = '';
+            balloonElements = [];
+            document.getElementById('balloonField').innerHTML = '';
+            stopFireworks();
+            goToScene(0);
+            setTimeout(initPolaroids, 400);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopFireworks();
+            } else if (currentSceneIdx === 5) {
+                startFireworks();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                const nextBtn = document.querySelector('.scene.active .next-btn:not([style*="display:none"])');
+                if (nextBtn) nextBtn.click();
+            }
+        });
+
+        console.log('💖 Unlock My Heart — enjoy the journey!');
+        console.log('📷 Double‑tap any polaroid to set a custom image URL (ibb.co or direct link).');
+        console.log('🕯️ Tap the candle → tap the cake → tap the heart!');
+        console.log('🎈 Pop all the balloons for a fireworks surprise!');
+    </script>
+
+</body>
+</html>
