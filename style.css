@@ -1,0 +1,101 @@
+/* ── Password Lock Scene ── */
+#scene0 {
+    z-index: 5;
+}
+#scene0.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+.lock-icon {
+    font-size: 4.5rem;
+    margin-bottom: 0.6rem;
+    animation: pulseLock 1.8s ease-in-out infinite;
+}
+@keyframes pulseLock {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+.password-box {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 1.8rem 2rem 2rem;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.password-box h2 {
+    font-family: 'Parisienne', cursive;
+    font-size: 1.6rem;
+    color: #e8c874;
+    margin-bottom: 0.3rem;
+}
+.password-box .sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.65rem;
+    color: #eab8b0;
+    opacity: 0.7;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.2rem;
+}
+.password-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.password-input-group input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    color: #fff7f0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    text-align: center;
+    letter-spacing: 0.2em;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+.password-input-group input:focus {
+    border-color: #e8c874;
+}
+.password-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+}
+.password-input-group .error-msg {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.6rem;
+    color: #ff5f7e;
+    min-height: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.password-input-group .error-msg.show {
+    opacity: 1;
+}
+.password-input-group .unlock-btn {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #e8c874, #d4a84a);
+    color: #0a0e2a;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-weight: 600;
+}
+.password-input-group .unlock-btn:active {
+    transform: scale(0.96);
+}
+.password-input-group .unlock-btn:disabled {
+    opacity: 0.5;
+    transform: scale(0.98);
+    pointer-events: none;
+}
